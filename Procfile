@@ -1,2 +1,2 @@
-worker: python3 signals.py
-worker: python3 base.py
+worker: python3 signals
+worker: python3 base
