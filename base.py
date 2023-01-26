@@ -149,18 +149,18 @@ def one(update, context):
 		[
 			[
 				InlineKeyboardButton(
-					"Results",
-					url = "https://t.me/PROFITxFLOW_RESULTS"
+					"Intro",
+					url = "https://youtu.be/tvFxOWf_oUg"
 				),
 				InlineKeyboardButton(
-					"Updates",
-					url = "https://t.me/PROFITxFLOW"
+					"Live Test",
+					url = "https://youtu.be/6q2vpMkUSuk"
 				)
 			],
 			[
 				InlineKeyboardButton(
-					"K.B.T Official",
-					url = "https://t.me/KINGOFBINARY"
+					"Updates",
+					url = "https://t.me/PROFITxFLOW"
 				)
 			]
 		]
