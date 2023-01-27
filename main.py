@@ -517,11 +517,11 @@ def check2(update, context):
 
 def mrket(update, context):
 	global musr
+	mu = db.reference("VIPUser")
+	musr = mu.get()
 	if str(update.effective_user.id) not in musr.keys():
 		update.message.reply_text("<b>Opps..!! it's looks like you do not have any active plan. please purchase a subscription code then activate it then try again⭕️</b>", parse_mode = "html")
 		return HOME
-	mu = db.reference("VIPUser")
-	musr = mu.get()
 	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = "html", reply_markup = ReplyKeyboardRemove())
 	time.sleep(1.3)
 	key = InlineKeyboardMarkup(
