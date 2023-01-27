@@ -67,8 +67,8 @@ def start(update, context):
 					url = "https://t.me/PROFITxFLOW_RESULTS"
 				),
 				InlineKeyboardButton(
-					"Official Channel",
-					url = "https://t.me/KINGOFBINARY"
+					"Updates",
+					url = "https://t.me/PROFITxFLOW"
 				)
 			],
 			[
@@ -90,13 +90,13 @@ def start(update, context):
 		except:
 			pass
 	mes.delete()
-	update.message.reply_text("<b>⭕️Please join the result channel and K.B.T Official channel to proceed further👇</b>", reply_markup = button, parse_mode = "html")
+	update.message.reply_text("<b>⭕️Please join the result channel and Updates channel to proceed further👇</b>", reply_markup = button, parse_mode = "html")
 	return ONE
 
 def one(update, context):
 	query = update.callback_query
 	m = bot.get_chat_member(chat_id = "@PROFITxFLOW_RESULTS", user_id = query.from_user.id)
-	m1 = bot.get_chat_member(chat_id = "@KINGOFBINARY", user_id = query.from_user.id)
+	m1 = bot.get_chat_member(chat_id = "@PROFITxFLOW", user_id = query.from_user.id)
 	if m.status != "member":
 		if m.status != "creator":
 			query.answer("make sure you joined all the mentioned channel and group..!!", show_alert = True)
@@ -150,17 +150,17 @@ def one(update, context):
 			[
 				InlineKeyboardButton(
 					"Intro",
-					url = "https://youtu.be/tvFxOWf_oUg"
+					url = "https://youtu.be/9H2nyp4bLIE"
 				),
 				InlineKeyboardButton(
 					"Live Test",
-					url = "https://youtu.be/6q2vpMkUSuk"
+					url = "https://youtu.be/kt-dD7fztKI"
 				)
 			],
 			[
 				InlineKeyboardButton(
-					"Updates",
-					url = "https://t.me/PROFITxFLOW"
+					"K.B.T Official",
+					url = "https://t.me/KINGOFBINARY"
 				)
 			]
 		]
@@ -219,6 +219,9 @@ def res(update, context):
 	return HOME
 
 def sub(update, context):
+	global musr
+	mu = db.reference("VIPUser")
+	musr = mu.get()
 	user = update.effective_user
 	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = 'html', reply_markup = ReplyKeyboardRemove())
 	time.sleep(1.3)
@@ -426,6 +429,9 @@ def code(update, context):
 	return HOME
 
 def rfr(update,context):
+	global usr
+	u = db.reference("User")
+	usr = u.get()
 	user = update.effective_user
 	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = "html", reply_markup = ReplyKeyboardRemove())
 	time.sleep(1.5)
@@ -510,9 +516,12 @@ def check2(update, context):
 	return CHECK
 
 def mrket(update, context):
+	global musr
 	if str(update.effective_user.id) not in musr.keys():
 		update.message.reply_text("<b>Opps..!! it's looks like you do not have any active plan. please purchase a subscription code then activate it then try again⭕️</b>", parse_mode = "html")
 		return HOME
+	mu = db.reference("VIPUser")
+	musr = mu.get()
 	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = "html", reply_markup = ReplyKeyboardRemove())
 	time.sleep(1.3)
 	key = InlineKeyboardMarkup(
