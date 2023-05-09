@@ -1,10 +1,10 @@
 from telegram import *
 from telegram.ext import *
+import time
 import firebase_admin
 from firebase_admin import db
 from firebase_admin import credentials
 from additional.lists import mklst
-import time
 
 bot = Bot("5813740213:AAErjpHMb6pwmKOeBGc7NO0T0HvSy0S58EE")
 updates = Updater("5813740213:AAErjpHMb6pwmKOeBGc7NO0T0HvSy0S58EE", use_context = True)
@@ -16,136 +16,37 @@ firebase_admin.initialize_app(cred,
 }
 )
 
-delm = {}
-mu = db.reference("VIPUser")
+JOIN, CHECK, HOME, CONFIRM, MKT= range(5)
+
+mu = db.reference("Users")
 musr = mu.get()
-u = db.reference("User")
-usr = u.get()
 
-for i in usr.keys():
-	try:
-		bot.send_message(chat_id = int(i), text = "<b>This bot has been restarted due to server maintenance. please use /start command to use again.</b>", parse_mode = "html")
-	except:
-		pass
-
-onet = {}
-
-ONE, HOME, SELECT, CODE, CHECK, CHECK2, MKT = range(7)
-
-def start(update, context):
+def start(update,context):
 	user = update.effective_user
 	chat = update.effective_chat
 	if chat.type != "private":
-		update.message.reply_text("<b>I am really sorry. but i only able to work in private chat. text me privately to use me ;)</b>", parse_mode = "html")
+		update.message.reply_text("<b>I am really sorry but i can only work on private chat. message me personally to use my fetures ;)</b>", parse_mode = "html")
 		return
-	if str(user.id) in usr.keys():
+	
+	if str(user.id) in musr.keys():
 		key = ReplyKeyboardMarkup(
-		[
 			[
-				"🔹Subscription",
-				"🔹Referral"
+				[
+					"🔹Live Result",
+					"🔹Bot Updates"
+				],
+				[
+					"📊Selected Markets"
+				],
+				[
+					"📞24/7 Support"
+				]
 			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
+			resize_keyboard = True
+		)
 		update.message.reply_text("<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = key)
 		return HOME
-	mes = update.message.reply_photo("https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/Picsart_23-01-07_11-11-30-275.jpg?alt=media&token=ab39c225-da19-47bb-a190-6260bc91af1e", caption = "<b>Hello {}👋\n\n<i>Welcome to PROFITxFLOW. Here you can receive Automated AI based 70% accurate signals. Explore the below options to know more⭕️</i></b>".format(user.first_name), parse_mode = "html")
-	
-	button = InlineKeyboardMarkup(
-		[
-			[
-				InlineKeyboardButton(
-					"Results",
-					url = "https://t.me/PROFITxFLOW_RESULTS"
-				),
-				InlineKeyboardButton(
-					"Updates",
-					url = "https://t.me/PROFITxFLOW"
-				)
-			],
-			[
-				InlineKeyboardButton(
-					"Joined☑️",
-					callback_data = "jn"
-				)
-			]
-		]
-	)
-	time.sleep(2)
-	txt = update.message.text
-	txt = txt.split()
-	if len(txt) == 2:
-		txt = txt[1]
-		try:
-			txt = int(txt)
-			onet[user.id] = str(txt)
-		except:
-			pass
-	mes.delete()
-	update.message.reply_text("<b>⭕️Please join the result channel and Updates channel to proceed further👇</b>", reply_markup = button, parse_mode = "html")
-	return ONE
-
-def one(update, context):
-	query = update.callback_query
-	m = bot.get_chat_member(chat_id = "@PROFITxFLOW_RESULTS", user_id = query.from_user.id)
-	m1 = bot.get_chat_member(chat_id = "@PROFITxFLOW", user_id = query.from_user.id)
-	if m.status != "member":
-		if m.status != "creator":
-			query.answer("make sure you joined all the mentioned channel and group..!!", show_alert = True)
-			return
-	if m1.status != "member":
-		if m1.status != "creator":
-			query.answer("make sure you joined all the mentioned channel and group..!!", show_alert = True)
-			return
-	
-	uid = query.from_user.id
-	if uid in onet.keys():
-		if str(onet[uid]) in usr.keys():
-			usr[onet[uid]]["Referral"].append(uid)
-			try:
-				bot.send_message(chat_id = onet[uid], text = "<b>Congratulations🎊.. {} has joined through your referral link✅</b>".format(query.from_user.first_name), parse_mode = "html")
-			except:
-				pass
-			usr[str(uid)] = {}
-			usr[str(uid)]["Referral"] = []
-			usr[str(uid)]["Referral"].append(1)
-			usr[str(uid)]["SReferral"] = 0
-			usr[str(uid)]["UReferral"] = 0
-			usr[str(uid)]["Refer By"] = onet[uid]
-			onet.pop(uid)
-	
-	if str(uid) not in usr.keys():
-		usr[str(uid)] = {}
-		usr[str(uid)]["Referral"] = []
-		usr[str(uid)]["Referral"].append(1)
-		usr[str(uid)]["SReferral"] = 0
-		usr[str(uid)]["UReferral"] = 0
-	u.set(usr)
-	ke = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-	key1 = InlineKeyboardMarkup(
+	key = InlineKeyboardMarkup(
 		[
 			[
 				InlineKeyboardButton(
@@ -159,51 +60,147 @@ def one(update, context):
 			],
 			[
 				InlineKeyboardButton(
+					"Live Results",
+					url = "https://t.me/PROFITxFLOW_RESULTS"
+				),
+				InlineKeyboardButton(
+					"Bot Updates",
+					url = "https://t.me/PROFITxFLOW"
+				)
+			],
+			[
+				InlineKeyboardButton(
+					"🔹JOIN NOW🔹",
+					callback_data = "jn"
+				)
+			]
+		]
+	)
+	update.message.reply_photo("https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/Picsart_23-01-07_11-11-30-275.jpg?alt=media&token=ab39c225-da19-47bb-a190-6260bc91af1e", caption = "<b>⭕️PROFITxFLOW Bot\n\n</b><i>▪️This bot is made by King of Binary Trade Group (K.B.T Official). This is a well designed AI it can give 85% accurate binary signals based on market price action. all signals are takeable because all signals duration is 5 minutes but before taking this signals Proper money management is recomended.</i>\n\n🔹<b>This bot is <u>Free</u> for everyone. To get these signals click on <u>JOIN NOW</u> Below</b>", parse_mode = "html", reply_markup = key)
+	return JOIN
+	
+def join(update, context):
+	query = update.callback_query
+	key1 = InlineKeyboardMarkup(
+		[
+			[
+				InlineKeyboardButton(
+					"Contact Us",
+					url = "https://t.me/PROFITxFLOW_SUPPORT",
+				)
+			],
+			[
+				InlineKeyboardButton(
+					"Join Link",
+					url = "https://broker-qx.pro/sign-up/?lid=331267",
+				)
+			]
+		]
+	)
+	bot.send_photo(chat_id = query.message.chat_id, photo = "https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/sgnp.PNG?alt=media&token=d7609aa0-cadc-4cb8-802f-1e3f246c9d0f", caption = "<b>Dear {}👋,\n\nTo get free 85% accurate signals please follow the given Steps below👇\n\n🔹Please Create an Account on Quotex through given link below\n  • Link : <a href = 'https://broker-qx.pro/sign-up/?lid=331267'>Click Here</a>\n🔹Please Deposit minimum 50$ on this account to trade.\n\n<u>⭕️After doing the avobe steps Please send your ID Number here.</u>\n  • How to Find ID : <a href='https://telegra.ph/How-to-find-Quotex-ID-05-09'>Click Here</a>\n\n⚠️Note : </b><i>If you have an account on quotex then delete it from settings and create a new account with a new email through this link. its necessary to create a account through this link. after creating an account through this link and deposit 50$ on it everything will be set after that you can enjoy free 85% accurate signals for lifetime.</i>\n\n<b>Feel free to contact if you need any help ;)</b>".format(query.from_user.first_name), parse_mode = "html", reply_markup = key1)
+	return CHECK
+	
+def check(update, context):
+	qid = update.message.text
+	user = update.message.from_user
+	try:
+		qqid = int(qid)
+	except:
+		update.message.reply_text("<b>Wrong ID❌\n\nI am really sorry. but the quotex ID should be numbers. please check how to find the ID and send again. thank you</b>", parse_mode = "html")
+		return CHECK
+	bot.send_message(chat_id = 1142185639, text = "<b>🔹User : <code>{}</code>\n🔹Name : <code>{}</code>\n🔹Quotex ID : <code>{}</code>\n\n⚠️Note : </b><i>this user applied for PROFITxFLOW Services. please check his query.</i>".format(user.id, user.full_name, qid), parse_mode = "html")
+	update.message.reply_text("<b>Thanks👍\n\nPlease wait patiently our team will check it soon as possible. they will reply you with in 4 hours.</b>", parse_mode = "html")
+	return CONFIRM
+
+def confirm(update, context):
+	query = update.callback_query
+	if query.data == "re":
+		key2 = InlineKeyboardMarkup(
+			[
+				[
+					InlineKeyboardButton(
+						"Contact Us",
+						url = "https://t.me/PROFITxFLOW_SUPPORT"
+					)
+				],
+				[
+					InlineKeyboardButton(
+						"Join Link",
+						url = "https://broker-qx.pro/sign-up/?lid=331267"
+					)
+				]
+			]
+		)
+		bot.send_photo(chat_id = query.message.chat_id, photo = "https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/sgnp.PNG?alt=media&token=d7609aa0-cadc-4cb8-802f-1e3f246c9d0f", caption = "<b>Dear {}👋,\n\nTo get free 85% accurate signals please follow the given Steps below👇\n\n🔹Please Create an Account on Quotex through given link below\n  • Link : <a href = 'https://broker-qx.pro/sign-up/?lid=331267'>Click Here</a>\n🔹Please Deposit minimum 50$ on this account to trade.\n\n<u>⭕️After doing the avobe steps Please send your ID Number here.</u>\n  • How to Find ID : <a href='https://telegra.ph/How-to-find-Quotex-ID-05-09'>Click Here</a>\n\n⚠️Note : </b><i>If you have an account on quotex then delete it from settings and create a new account with a new email through this link. its necessary to create a account through this link. after creating an account through this link and deposit 50$ on it everything will be set after that you can enjoy free 85% accurate signals for lifetime.</i>\n\n<b>Feel free to contact if you need any help ;)</b>".format(query.from_user.first_name), parse_mode = "html", reply_markup = key2)
+		return CHECK
+	elif query.data == "dn":
+		key = ReplyKeyboardMarkup(
+			[
+				[
+					"🔹Live Result",
+					"🔹Bot Updates"
+				],
+				[
+					"📊Selected Markets"
+				],
+				[
+					"📞24/7 Support"
+				]
+			],
+			resize_keyboard = True
+		)
+		key1 = InlineKeyboardMarkup(
+			[
+				[
+					InlineKeyboardButton(
+						"Live Results",
+						url = "https://t.me/PROFITxFLOW_RESULTS"	
+					),
+					InlineKeyboardButton(
+						"Live Test",
+						url = "https://youtu.be/kt-dD7fztKI"
+					)
+				],
+				[
+					InlineKeyboardButton(
+						"K.B.T Official",
+						url = "t.me/KINGOFBINARY"
+					)
+				]
+			]
+		)
+		musr[str(query.from_user.id)] = ["K","AUDCAD", "AUDUSD", "EURGBP", "EURJPY", "EURUSD", "GBPUSD", "GBPJPY", "NZDUSD", "USDCHF", "USDJPY"]
+		mu.set(musr)
+		bot.send_photo(chat_id = query.message.chat_id, photo = "https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/Picsart_23-01-07_11-11-30-275.jpg?alt=media&token=ab39c225-da19-47bb-a190-6260bc91af1e", caption = "<b>Well Done {}!!\n\nYou are now a official bot member✅\n\nYou will receive signals here from now on. Please use proper money management to use these signals and own tecnical analysis is recomemded. however all signals are 85% accurate and all signals are takeable.</b>".format(query.from_user.first_name), parse_mode = "html", reply_markup = key1)
+		bot.send_message(chat_id = query.message.chat_id, text = "<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = key)
+		return HOME
+
+def res(update, context):
+	key = InlineKeyboardMarkup(
+		[
+			[
+				InlineKeyboardButton(
+					"Live Results",
+					url = "https://t.me/PROFITxFLOW_RESULTS"
+				)
+			],
+			[
+				InlineKeyboardButton(
 					"K.B.T Official",
 					url = "https://t.me/KINGOFBINARY"
 				)
 			]
 		]
 	)
-	
-	
-	
-	bot.send_photo(chat_id = query.message.chat_id, photo = "https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/Picsart_23-01-07_11-11-30-275.jpg?alt=media&token=ab39c225-da19-47bb-a190-6260bc91af1e", caption = "<b>⭕️PROFITxFLOW bot Home.\n\n</b><i>▪️This bot is made by King of Binary Trade Group (K.B.T Official). This is a well designed AI it can give 70% accurate binary signals based on market price action. all signals are takeable because all signals duration is 5 minutes but before taking this signals Proper money management is recomended. to get these signals you can buy Subscription from below</i>\n\n<b><u>♦️Subscription Packs👇</u>\n\n<i>🔹1 Week Plan : 19$\n🔹1 Month Plan : 69$\n🔹2 Month Plan : 119$\n🔹3 Month Plan : 149$</i></b>", parse_mode = "html", reply_markup = key1)
-	
-	bot.send_message(chat_id = query.message.chat_id, text = "<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = ke)
-	
-	bot.delete_message(query.message.chat_id, query.message.message_id)
+	update.message.reply_text("<b>Below you will find bot Live Results and K.B.T Official Link👇\n\n🔹Live Results🔸<a href = 'https://t.me/PROFITxFLOW_RESULTS'>Click Here</a>🔸\n\n🔹K.B.T Official🔸<a href = 'https://t.me/KINGOFBINARY'>Click Here</a>🔸\n\n</b>📌<i>K.B.T Official is a binary trading group. exist since 2019. this group is made by some master lavel binary traders. they trade with deep concepts and strategy. in this group they have signals service, Binary teaching service. you are welcome to visit us.</i>", parse_mode = "html", reply_markup = key)
 	return HOME
-	
-def sup(update, context):
-	user = update.effective_user
-	
+
+def upd(update, context):
 	key = InlineKeyboardMarkup(
 		[
 			[
 				InlineKeyboardButton(
-					"support",
-					url = "https://t.me/PROFITxFLOW_SUPPORT"
-				)
-			]
-		]
-	)
-	
-	update.message.reply_text("<b>Hello There {},\nneed any kind of help, our support agent always here to help.!\n\nClick to this button below to talk to our support agent in person👇</b>".format(user.first_name), parse_mode = "html", reply_markup = key)
-	return HOME
-	
-def res(update, context):
-	key = InlineKeyboardMarkup(
-		[
-			[
-				InlineKeyboardButton(
-					"Results",
-					url = "https://t.me/PROFITxFLOW_RESULTS"
-				)
-			],
-			[
-				InlineKeyboardButton(
-					"Updates",
+					"Bot Updates",
 					url = "https://t.me/PROFITxFLOW"
 				)
 			],
@@ -215,313 +212,25 @@ def res(update, context):
 			]
 		]
 	)
-	update.message.reply_text("<b>Here below you will find results channel and updates channel and K.B.T Official channel👇</b>", parse_mode = "html", reply_markup = key)
+	update.message.reply_text("<b>Below you will find bot Updates Channel and K.B.T Official Link👇\n\n🔹Bot Updates🔸<a href = 'https://t.me/PROFITxFLOW'>Click Here</a>🔸\n\n🔹K.B.T Official🔸<a href = 'https://t.me/KINGOFBINARY'>Click Here</a>🔸\n\n</b>📌<i>K.B.T Official is a binary trading group. exist since 2019. this group is made by some master lavel binary traders. they trade with deep concepts and strategy. in this group they have signals service, Binary teaching service. you are welcome to visit us.</i>", parse_mode = "html", reply_markup = key)
 	return HOME
 
-def sub(update, context):
-	global musr
-	mu = db.reference("VIPUser")
-	musr = mu.get()
+def sup(update, context):
 	user = update.effective_user
-	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = 'html', reply_markup = ReplyKeyboardRemove())
-	time.sleep(1.3)
-	if str(user.id) in musr.keys():
-		days = musr[str(user.id)]["Duration"] / 24
-		days = str(days)
-		if "." in days:
-			days = days.split(".")
-			days = days[0]
-		hours = int(days)
-		hours = hours * 24
-		hours = musr[str(user.id)]["Duration"] - hours
-		if hours < 0:
-			hours = 0
-		key = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-		mes.delete()
-		update.message.reply_text("<b>Hello there {}👋\n\n• Your subscription going to end in👇\n🔹{} Days {} Hours🔹\n\nHope you're enjoying the signal service. Good Luck✅</b>".format(user.first_name, days, hours), parse_mode = "html", reply_markup = key)
-		return HOME
-	mes.delete()
 	key = InlineKeyboardMarkup(
 		[
 			[
 				InlineKeyboardButton(
-					"Enter Code",
-					callback_data = "ec"
-				),
-				InlineKeyboardButton(
-					"Buy Code",
-					callback_data = "bc"
-				)
-			],
-			[
-				InlineKeyboardButton(
-					"Cancel",
-					callback_data = "bk"
+					"Support Agent",
+					url = "https://t.me/PROFITxFLOW_SUPPORT"
 				)
 			]
 		]
 	)
-	update.message.reply_text("<b>Opps..!! You don't have any active Subscription.\n\n⭕️Follow the Buttons below to Enter new code or buy new code👇</b>", parse_mode = "html", reply_markup = key)
-	return SELECT
-
-def select(update, context):
-	query = update.callback_query
-	if query.data == "ec":
-		key = InlineKeyboardMarkup(
-			[
-				[
-					InlineKeyboardButton(
-						"Cancel",
-						callback_data = "cl"
-					)
-				]
-			]
-		)
-		query.edit_message_text("<b>Please Send Your Subscription Code👇</b>", parse_mode = "html", reply_markup = key)
-		delm[query.from_user.id] = query.message.message_id
-		return CODE
-	elif query.data == "bc":
-		key = InlineKeyboardMarkup(
-			[
-				[
-					InlineKeyboardButton(
-						"Support",
-						url = "https://t.me/PROFITxFLOW_SUPPORT"
-					)
-				]
-			]
-		)
-		query.edit_message_text("<b>Hello there {},\n\nIf you want to buy a new subscription code then kindly talk to our Support agent for further assistance✅\n\nHere is our Plans:\n<i>🔹1 Week Plan : 19$\n🔹1 Month Plan : 69$\n🔹2 Month Plan : 119$\n🔹3 Month Plan : 149$</i></b>".format(query.from_user.first_name), parse_mode = "html", reply_markup = key)
-		key = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-		mes = bot.send_message(chat_id = query.message.chat_id, text = "<b>• Bot Main Menu</b>", parse_mode = "html", reply_markup = key)
-		return HOME
-	elif query.data == "bk":
-		key = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-		bot.delete_message(query.message.chat_id, query.message.message_id)
-		bot.send_message(chat_id = query.message.chat_id, text = "<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = key)
-		return HOME
-
-def codeq(update, context):
-	query = update.callback_query
-	if query.data == "cl":
-		key = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-		bot.delete_message(query.message.chat_id, query.message.message_id)
-		bot.send_message(chat_id = query.message.chat_id, text = "<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = key)
-		return HOME
-
-def code(update, context):
-	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = "html")
-	bot.delete_message(update.message.chat_id, delm[update.effective_user.id])
-	dels = db.reference("Codes")
-	scodes = dels.get()
-	if update.message.text not in scodes.keys():
-		mes.edit_text("<b>The code you entered was invalid❌... Please try again.</b>", parse_mode = "html")
-		time.sleep(2)
-		key = InlineKeyboardMarkup(
-			[
-				[
-					InlineKeyboardButton(
-						"Cancel",
-						callback_data = "cl"
-					)
-				]
-			]
-		)
-		mes.edit_text("<b>Please Send Your Subscription Code👇</b>", parse_mode = "html", reply_markup = key)
-		delm[update.effective_user.id] = mes.message_id
-		return CODE
-		
-	key = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-	musr[str(update.effective_user.id)] = {}
-	musr[str(update.effective_user.id)]["Duration"] = scodes[update.message.text]
-	musr[str(update.effective_user.id)]["Markets"] = ["AUDCAD", "AUDUSD", "EURGBP", "EURJPY", "EURUSD", "GBPUSD", "GBPJPY", "NZDUSD", "USDCHF", "USDJPY", "A"]
-	if "Refer By" in usr[str(update.effective_user.id)].keys():
-		usr[usr[str(update.effective_user.id)]["Refer By"]]["SReferral"] += 1
-		bot.send_message(chat_id = usr[str(update.effective_user.id)]["Refer By"], text = "<b>Congratulations🎊.. 1 Successful referral has been added to your account.</b>", parse_mode = "html")
-		usr[usr[str(update.effective_user.id)]["Refer By"]]["Referral"].remove(update.effective_user.id)
-		usr[str(update.effective_user.id)].pop("Refer By")
-		u.set(usr)
-	scodes.pop(update.message.text)
-	dels.set(scodes)
-	mu.set(musr)
-	days = musr[str(update.effective_user.id)]["Duration"] / 24
-	days = str(days)
-	if "." in days:
-		days = days.split(".")
-		days = days[0]
-	mes.delete()
-	update.message.reply_text("<b>Congratulations🎊.. Your Subscription for {} days has been started from now on✅\n\nThanks For joining us☑️</b>".format(days), parse_mode = "html", reply_markup = key)
+	update.message.reply_text("<b>Hey there {}👋\n\n<i>“Need any Help, Our Support agent always here to Help!!”</i>\n\n🔹Click to the button below to talk to our 24/7 Support agent👇</b>".format(user.first_name), parse_mode = "html", reply_markup = key)
 	return HOME
 
-def rfr(update,context):
-	global usr
-	u = db.reference("User")
-	usr = u.get()
-	user = update.effective_user
-	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = "html", reply_markup = ReplyKeyboardRemove())
-	time.sleep(1.5)
-	key = InlineKeyboardMarkup(
-		[
-			[
-				InlineKeyboardButton(
-					"Know More",
-					callback_data = "km"
-				)
-			],
-			[
-				InlineKeyboardButton(
-					"Back",
-					callback_data = "bk"
-				)
-			]
-		]
-	)
-	mes.delete()
-	update.message.reply_photo(photo = "https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/Picsart_23-01-08_17-36-32-623.jpg?alt=media&token=6cd6e4da-82c3-4931-9569-3573d8793c1f", caption = "<b>Hello there {}👋\n\n🔸Your total referral is {} ☑️\n🔸Your successful referral is {} ☑️\n🔸Your used referral is {} ☑️\n\nHere is your referral link👇\n🔹https://telegram.me/{}?start={}\n\nClick on the button below to know more👇</b>".format(user.first_name, len(usr[str(user.id)]["Referral"]) - 1 + usr[str(user.id)]["SReferral"] + usr[str(user.id)]["UReferral"], usr[str(user.id)]["SReferral"], usr[str(user.id)]["UReferral"], bot.username, user.id), parse_mode = "html", reply_markup = key)
-	return CHECK
-
-def check(update, context):
-	query = update.callback_query
-	if query.data == "bk":
-		bot.delete_message(query.message.chat_id, query.message.message_id)
-		key = ReplyKeyboardMarkup(
-		[
-			[
-				"🔹Subscription",
-				"🔹Referral"
-			],
-			[
-				"🔹Results",
-				"📞Support"
-			],
-			[
-				"📊Selected Markets"
-			]
-		],
-		resize_keyboard = True
-	)
-		bot.send_message(chat_id = query.message.chat_id, text = "<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = key)
-		return HOME
-	elif query.data == "km":
-		key = InlineKeyboardMarkup(
-			[
-				[
-					InlineKeyboardButton(
-						"Back",
-						callback_data = "bk"
-					)
-				]
-			]
-		)
-		bot.delete_message(query.message.chat_id, query.message.message_id)
-		bot.send_message(chat_id = query.message.chat_id, text = "<b><u>⭕️Referral Program:</u>\n\n<i>🔹After your friend joined through your referral link, it will count as a referral on your dashboard.\n\n🔹When your friend purchase a subscription plan it will count as a successful referral immediately.\n\n🔹For each successful referral you will get 5$ off on the subscription plan.\n\n🔹For 4 successful referral you will get 1 week signal plan for free.\n\n🔹For 15 successful referral you will get 1 month signal plan for free.\n\n🔹After you purchase plan through referral discount, Your referral will count as a used referral.</i></b>", parse_mode = "html", reply_markup = key)
-		return CHECK2
-
-def check2(update, context):
-	query = update.callback_query
-	user = query.from_user
-	bot.delete_message(query.message.chat_id, query.message.message_id)
-	key = InlineKeyboardMarkup(
-		[
-			[
-				InlineKeyboardButton(
-					"Know More",
-					callback_data = "km"
-				)
-			],
-			[
-				InlineKeyboardButton(
-					"Back",
-					callback_data = "bk"
-				)
-			]
-		]
-	)
-	bot.send_photo(chat_id = query.message.chat_id, photo = "https://firebasestorage.googleapis.com/v0/b/nagase-mana.appspot.com/o/Picsart_23-01-08_17-36-32-623.jpg?alt=media&token=6cd6e4da-82c3-4931-9569-3573d8793c1f", caption = "<b>Hello there {}👋\n\n🔸Your total referral is {} ☑️\n🔸Your successful referral is {} ☑️\n🔸Your used referral is {} ☑️\n\nHere is your referral link👇\n🔹https://telegram.me/{}?start={}\n\nClick on the button below to know more👇</b>".format(user.first_name, len(usr[str(user.id)]["Referral"]) -1 + usr[str(user.id)]["SReferral"] + usr[str(user.id)]["UReferral"], usr[str(user.id)]["SReferral"], usr[str(user.id)]["UReferral"], bot.username, user.id), parse_mode = "html", reply_markup = key)
-	return CHECK
-
-def mrket(update, context):
-	global musr
-	mu = db.reference("VIPUser")
-	musr = mu.get()
-	if str(update.effective_user.id) not in musr.keys():
-		update.message.reply_text("<b>Opps..!! it's looks like you do not have any active plan. please purchase a subscription code then activate it then try again⭕️</b>", parse_mode = "html")
-		return HOME
+def market(update, context):
 	mes = update.message.reply_text("<b>Please Wait🔄...</b>", parse_mode = "html", reply_markup = ReplyKeyboardRemove())
 	time.sleep(1.3)
 	key = InlineKeyboardMarkup(
@@ -584,8 +293,9 @@ def mrket(update, context):
 	)
 	user = update.effective_user	
 	txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
+	
 	for i in mklst:
-		if i in musr[str(user.id)]["Markets"]:
+		if i in musr[str(user.id)]:
 			txt += "🔹{} (✅)\n".format(i)
 		else:
 			txt += "🔹{} (❌)\n".format(i)
@@ -658,13 +368,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "AUDCAD" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("AUDCAD")
+		if "AUDCAD" in musr[str(user.id)]:
+			musr[str(user.id)].remove("AUDCAD")
 		else:
-			musr[str(user.id)]["Markets"].append("AUDCAD")
+			musr[str(user.id)].append("AUDCAD")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -672,18 +382,18 @@ def mkt(update, context):
 		mu.set(musr)
 		query.edit_message_text(txt, parse_mode = "html", reply_markup = key)
 		return MKT
-	
+
 	elif query.data == "AU":
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "AUDUSD" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("AUDUSD")
+		if "AUDUSD" in musr[str(user.id)]:
+			musr[str(user.id)].remove("AUDUSD")
 		else:
-			musr[str(user.id)]["Markets"].append("AUDUSD")
+			musr[str(user.id)].append("AUDUSD")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -696,13 +406,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "EURGBP" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("EURGBP")
+		if "EURGBP" in musr[str(user.id)]:
+			musr[str(user.id)].remove("EURGBP")
 		else:
-			musr[str(user.id)]["Markets"].append("EURGBP")
+			musr[str(user.id)].append("EURGBP")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -715,13 +425,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "EURJPY" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("EURJPY")
+		if "EURJPY" in musr[str(user.id)]:
+			musr[str(user.id)].remove("EURJPY")
 		else:
-			musr[str(user.id)]["Markets"].append("EURJPY")
+			musr[str(user.id)].append("EURJPY")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -734,13 +444,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "EURUSD" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("EURUSD")
+		if "EURUSD" in musr[str(user.id)]:
+			musr[str(user.id)].remove("EURUSD")
 		else:
-			musr[str(user.id)]["Markets"].append("EURUSD")
+			musr[str(user.id)].append("EURUSD")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -753,13 +463,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "GBPUSD" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("GBPUSD")
+		if "GBPUSD" in musr[str(user.id)]:
+			musr[str(user.id)].remove("GBPUSD")
 		else:
-			musr[str(user.id)]["Markets"].append("GBPUSD")
+			musr[str(user.id)].append("GBPUSD")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -772,13 +482,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "GBPJPY" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("GBPJPY")
+		if "GBPJPY" in musr[str(user.id)]:
+			musr[str(user.id)].remove("GBPJPY")
 		else:
-			musr[str(user.id)]["Markets"].append("GBPJPY")
+			musr[str(user.id)].append("GBPJPY")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -791,13 +501,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "NZDUSD" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("NZDUSD")
+		if "NZDUSD" in musr[str(user.id)]:
+			musr[str(user.id)].remove("NZDUSD")
 		else:
-			musr[str(user.id)]["Markets"].append("NZDUSD")
+			musr[str(user.id)].append("NZDUSD")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -810,13 +520,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "USDCHF" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("USDCHF")
+		if "USDCHF" in musr[str(user.id)]:
+			musr[str(user.id)].remove("USDCHF")
 		else:
-			musr[str(user.id)]["Markets"].append("USDCHF")
+			musr[str(user.id)].append("USDCHF")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -829,13 +539,13 @@ def mkt(update, context):
 		user = query.from_user
 		txt = "<b>⭕️Here are the list of your selected markets👇\n\n"
 		
-		if "USDJPY" in musr[str(user.id)]["Markets"]:
-			musr[str(user.id)]["Markets"].remove("USDJPY")
+		if "USDJPY" in musr[str(user.id)]:
+			musr[str(user.id)].remove("USDJPY")
 		else:
-			musr[str(user.id)]["Markets"].append("USDJPY")
+			musr[str(user.id)].append("USDJPY")
 				
 		for i in mklst:
-			if i in musr[str(user.id)]["Markets"]:
+			if i in musr[str(user.id)]:
 				txt += "🔹{} (✅)\n".format(i)
 			else:
 				txt += "🔹{} (❌)\n".format(i)
@@ -848,15 +558,14 @@ def mkt(update, context):
 		key = ReplyKeyboardMarkup(
 			[
 				[
-					"🔹Subscription",
-					"🔹Referral"
-				],
-				[
-					"🔹Results",
-					"📞Support"
+					"🔹Live Result",
+					"🔹Bot Updates"
 				],
 				[
 					"📊Selected Markets"
+				],
+				[
+					"📞24/7 Support"
 				]
 			],
 			resize_keyboard = True
@@ -865,22 +574,109 @@ def mkt(update, context):
 		bot.send_message(chat_id = query.message.chat_id, text = "<b>You are at bot main menu. You will find all options below👇</b>", parse_mode = "html", reply_markup = key)
 		return HOME
 
+def console(update, context):
+	user = update.effective_user
+	if user.id != 1142185639:
+		return
+	text = update.message.text.split(None,1)
+	try:
+		text = text[1].split("|")
+	except:
+		update.message.reply_text("<b>Invalid Text Format please send like 👉 “/send user ID|Your Message|one or two” here | means Split, “one” means re check and “two” means everything is perfect</b>", parse_mode = "html")
+		return
+	if len(text) < 3:
+		update.message.reply_text("<b>Less value detected. please send like this 👉 “/send user ID|Your Message|one or two” here | means Split, “one” means re check and “two” means everything is perfect</b>", parse_mode = "html")
+		return
+	if text[2] == "one":
+		key = InlineKeyboardMarkup(
+			[
+				[
+					InlineKeyboardButton(
+						"Re Submit",
+						callback_data = "re"
+					)
+				]
+			]
+		)
+	elif text[2] == "two":
+		key = InlineKeyboardMarkup(
+			[
+				[
+					InlineKeyboardButton(
+						"Main Menu",
+						callback_data = "dn"
+					)
+				]
+			]
+		)
+	bot.send_message(chat_id = int(text[0]), text = "<b>{}</b>".format(text[1]), parse_mode = "html", reply_markup = key)
 
-updates.dispatcher.add_handler(ConversationHandler(
-	entry_points=[CommandHandler("start", start)],
-	states = {
-			ONE : [CallbackQueryHandler(one)],
-			HOME : [MessageHandler(Filters.regex("📞Support"), sup),
-			MessageHandler(Filters.regex("🔹Results"), res), MessageHandler(Filters.regex("🔹Subscription"), sub),
-			MessageHandler(Filters.regex("🔹Referral"), rfr), MessageHandler(Filters.regex("📊Selected Markets"), mrket)],
-			SELECT : [CallbackQueryHandler(select)],
-			CODE : [CallbackQueryHandler(codeq),
-			MessageHandler(Filters.text, code)],
-			CHECK : [CallbackQueryHandler(check)],
-			CHECK2 : [CallbackQueryHandler(check2)],
-			MKT : [CallbackQueryHandler(mkt)]
+
+updates.dispatcher.add_handler(CommandHandler("send", console))
+
+updates.dispatcher.add_handler(
+	ConversationHandler(
+		entry_points = [
+			CommandHandler(
+				"start",
+				start
+			)
+		],
+		states = {
+			JOIN : [
+				CallbackQueryHandler(
+					join
+				)
+			],
+			CHECK : [
+				MessageHandler(
+					Filters.text,
+					check
+				)
+			],
+			CONFIRM : [
+				CallbackQueryHandler(
+					confirm
+				)
+			],
+			HOME : [
+				MessageHandler(
+					Filters.regex(
+						"🔹Live Result"
+					),
+					res
+				),
+				MessageHandler(
+					Filters.regex(
+						"🔹Bot Updates"
+					),
+					upd
+				),
+				MessageHandler(
+					Filters.regex(
+						"📞24/7 Support"
+					),
+					sup
+				),
+				MessageHandler(
+					Filters.regex(
+						"📊Selected Markets"
+					),
+					market
+				)
+			],
+			MKT : [
+				CallbackQueryHandler(
+					mkt
+				)
+			]
 		},
-		fallbacks = [CommandHandler("start", start)]
+		fallbacks = [
+			CommandHandler(
+				"start",
+				start
+			)
+		]
 	)
 )
 updates.start_polling()
